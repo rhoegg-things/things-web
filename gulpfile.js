@@ -1,4 +1,6 @@
 var gulp = require('gulp');
+var browserSync = require('browser-sync');
+var reload = browserSync.reload;
 var $    = require('gulp-load-plugins')();
 
 var sassPaths = [
@@ -7,7 +9,7 @@ var sassPaths = [
 ];
 
 gulp.task('sass', function() {
-  return gulp.src('scss/app.scss')
+  return gulp.src('app/scss/app.scss')
     .pipe($.sass({
       includePaths: sassPaths
     })
@@ -15,9 +17,18 @@ gulp.task('sass', function() {
     .pipe($.autoprefixer({
       browsers: ['last 2 versions', 'ie >= 9']
     }))
-    .pipe(gulp.dest('css'));
+    .pipe(gulp.dest('app/css'))
+    .pipe(reload({ stream: true }));
 });
 
-gulp.task('default', ['sass'], function() {
-  gulp.watch(['scss/**/*.scss'], ['sass']);
+// watch files for changes and reload
+gulp.task('serve', ['sass'], function() {
+  browserSync({
+    server: {
+      baseDir: 'app'
+    }
+  });
+
+  gulp.watch('app/scss/*.scss', ['sass']);
+  gulp.watch(['*.html', 'css/**/*.css', 'js/**/*.js'], {cwd: 'app'}, reload);
 });
