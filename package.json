@@ -1,0 +1,30 @@
+{
+  "name": "things-web",
+  "version": "1.0.0",
+  "description": "Web UI for Things",
+  "main": "gulpfile.js",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-autoprefixer": "^3.1.0",
+    "gulp-load-plugins": "^1.1.0",
+    "gulp-sass": "^2.1.0"
+  },
+  "scripts": {
+    "start": "gulp",
+    "build": "gulp sass"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rhoegg-things/things-web.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rhoegg-things/things-web/issues",
+    "email": "ryan.hoegg@gmail.com"
+  },
+  "author": "Ryan Hoegg <ryan.hoegg@gmail.com>",
+  "license": "Apache 2.0",
+  "private": true,
+  "dependencies": {
+    "gulp-autoprefixer": "^3.1.0"
+  }
+}
