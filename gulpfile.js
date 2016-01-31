@@ -2,7 +2,6 @@ var gulp = require('gulp');
 var browserSync = require('browser-sync');
 var del = require('del');
 var runSequence = require('run-sequence');
-var useref = require('useref');
 var $    = require('gulp-load-plugins')();
 
 var sassPaths = [
@@ -39,7 +38,7 @@ gulp.task('build-scripts', function() {
 
 gulp.task('build-html', ['build-scripts', 'build-styles'], function() {
   return gulp.src('app/*.html')
-    .pipe(useref({
+    .pipe($.useref({
       searchPath: ['dist', '.']
     }))
     .pipe(gulp.dest('dist/'));
