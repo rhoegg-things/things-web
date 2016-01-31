@@ -8,6 +8,18 @@
         "description": "Name of azure web app"
       }
     },
+    "repoURL": {
+      "type": "string",
+      "metadata": {
+        "description": "URL of git repository to use for deployment"
+      }
+    },
+    "deployBranch": {
+      "type": "string",
+      "metadata": {
+        "description": "Branch to deploy"
+      }
+    },
     "appServicePlanName": {
       "type": "string",
       "metadata": {
@@ -85,34 +97,34 @@
       ],
       "properties": {
         "name": "[parameters('siteName')]",
-        "serverFarmId": "[parameters('appServicePlanName')]"
+        "serverFarmId": "[parameters('appServicePlanName')]",
+        "siteConfig": {
+            "alwaysOn": "[parameters('enableAlwaysOn')]",
+            "phpVersion": "off"
+        }
       },
       "resources": [
         {
           "apiVersion": "2015-06-01",
           "name": "web",
-          "type": "config",
+          "type": "sourcecontrols",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
+            "[concat('Microsoft.Web/Sites', '/', parameters('siteName'))]"
           ],
           "properties": {
-            "phpVersion": "off",
-            "netFrameworkVersion": "v4.5",
-            "use32BitWorkerProcess": "[parameters('use32bitWorkerProcess')",
-            "webSocketsEnabled": true,
-            "alwaysOn": "[parameters('enableAlwaysOn')]",
-            "requestTracingEnabled": true,
-            "httpLoggingEnabled": true,
-            "logsDirectorySizeLimit": 40,
-            "detailedErrorLoggingEnabled": true,
-            "scmType": "LocalGit",
-            "appSettings": [
-              {
-                "Name": "SCM_SITEEXTENSIONS_FEED_URL",
-                "Value": "http://www.siteextensions.net/api/v2/"
-              }
-            ]
+            "repoUrl": "[parameters('repoURL')]",
+            "branch": "[parameters('deployBranch')]",
+            "IsManualIntegration": false
           }
+        },
+        {
+          "apiVersion":"2015-06-01",
+          "name": "www.things.ryanhoegg.com",
+          "type": "hostNameBindings",
+          "dependsOn": [
+            "[concat('Microsoft.Web/Sites', '/', parameters('siteName'))]",
+            "Microsoft.Network/dnszones/things.ryanhoegg.com/CNAME/www"
+          ]
         }
       ]
     },
@@ -134,7 +146,8 @@
       "type": "Microsoft.Network/dnszones/CNAME",
       "location": "global",
       "dependsOn": [
-        "Microsoft.Network/dnszones/things.ryanhoegg.com"
+        "Microsoft.Network/dnszones/things.ryanhoegg.com",
+        "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
       ],
       "tags": {
         "env": "production"

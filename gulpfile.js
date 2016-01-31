@@ -2,6 +2,7 @@ var gulp = require('gulp');
 var browserSync = require('browser-sync');
 var del = require('del');
 var runSequence = require('run-sequence');
+var deploy = require('gulp-gh-pages');
 var $    = require('gulp-load-plugins')();
 
 var sassPaths = [
@@ -59,4 +60,11 @@ gulp.task('serve', ['build'], function() {
 
   gulp.watch('app/scss/*.scss', ['sass']);
   gulp.watch(['*.html', 'css/**/*.css', 'js/**/*.js'], {cwd: 'app'}, ['serve-reload']);
+});
+
+gulp.task('deploy-azure', ['build'], function() {
+  return gulp.src('dist/**/*')
+    .pipe(deploy({
+      branch: 'azure'
+    }));
 });
