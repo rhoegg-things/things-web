@@ -37,8 +37,11 @@ gulp.task('build-scripts', function() {
     .pipe(gulp.dest('dist/js/'));
 });
 
-gulp.task('build-html', function() {
+gulp.task('build-html', ['build-scripts', 'build-styles'], function() {
   return gulp.src('app/*.html')
+    .pipe($.useref({
+      searchPath: ['dist', '.']
+    }))
     .pipe(gulp.dest('dist/'));
 });
 
