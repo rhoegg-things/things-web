@@ -4,11 +4,13 @@
   "description": "Web UI for Things",
   "main": "gulpfile.js",
   "devDependencies": {
+    "browser-sync": "^2.11.0",
+    "del": "^2.2.0",
     "gulp": "^3.9.0",
     "gulp-autoprefixer": "^3.1.0",
     "gulp-load-plugins": "^1.1.0",
     "gulp-sass": "^2.1.0",
-    "browser-sync": "^2.11.0"
+    "run-sequence": "^1.1.5"
   },
   "scripts": {
     "start": "gulp",

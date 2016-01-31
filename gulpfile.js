@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var browserSync = require('browser-sync');
-var reload = browserSync.reload;
+var del = require('del');
+var runSequence = require('run-sequence');
 var $    = require('gulp-load-plugins')();
 
 var sassPaths = [
@@ -18,17 +19,44 @@ gulp.task('sass', function() {
       browsers: ['last 2 versions', 'ie >= 9']
     }))
     .pipe(gulp.dest('app/css'))
-    .pipe(reload({ stream: true }));
+    .pipe(browserSync.reload({ stream: true }));
+});
+
+gulp.task('clean', function() {
+  return del.sync('dist');
+});
+
+gulp.task('build-styles', ['sass'], function() {
+  return gulp.src('app/css/*.css')
+    .pipe(gulp.dest('dist/css/'));
+});
+
+gulp.task('build-scripts', function() {
+  return gulp.src('app/js/*.js')
+    .pipe(gulp.dest('dist/js/'));
+});
+
+gulp.task('build-html', function() {
+  return gulp.src('app/*.html')
+    .pipe(gulp.dest('dist/'));
+});
+
+gulp.task('build', function(callback) {
+  runSequence('clean', ['build-html', 'build-styles', 'build-scripts'], callback);
+});
+
+gulp.task('serve-reload', ['build'], function() {
+  browserSync.reload();
 });
 
 // watch files for changes and reload
-gulp.task('serve', ['sass'], function() {
+gulp.task('serve', ['build'], function() {
   browserSync({
     server: {
-      baseDir: 'app'
+      baseDir: 'dist'
     }
   });
 
   gulp.watch('app/scss/*.scss', ['sass']);
-  gulp.watch(['*.html', 'css/**/*.css', 'js/**/*.js'], {cwd: 'app'}, reload);
+  gulp.watch(['*.html', 'css/**/*.css', 'js/**/*.js'], {cwd: 'app'}, ['serve-reload']);
 });
