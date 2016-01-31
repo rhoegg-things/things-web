@@ -16,9 +16,6 @@ gulp.task('sass', function() {
       includePaths: sassPaths
     })
       .on('error', $.sass.logError))
-    .pipe($.autoprefixer({
-      browsers: ['last 2 versions', 'ie >= 9']
-    }))
     .pipe(gulp.dest('app/css'))
     .pipe(browserSync.reload({ stream: true }));
 });
@@ -42,8 +39,13 @@ gulp.task('build-html', function() {
     .pipe(gulp.dest('dist/'));
 });
 
+gulp.task('build-bower', function() {
+  return gulp.src('bower_components/**/*')
+    .pipe(gulp.dest('dist/bower_components/'));
+});
+
 gulp.task('build', function(callback) {
-  runSequence('clean', ['build-html', 'build-styles', 'build-scripts'], callback);
+  runSequence('clean', ['build-bower', 'build-html', 'build-styles', 'build-scripts'], callback);
 });
 
 gulp.task('serve-reload', ['build'], function() {
