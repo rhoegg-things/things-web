@@ -3,14 +3,38 @@ var browserSync = require('browser-sync');
 var del = require('del');
 var runSequence = require('run-sequence');
 var deploy = require('gulp-gh-pages');
-var $    = require('gulp-load-plugins')();
+var args = require('yargs').argv;
+var fs = require('fs');
+var $    = require('gulp-load-plugins')({
+  rename: {
+    "gulp-replace-task": "replace"
+  }
+});
 
-var sassPaths = [
-  'bower_components/foundation-sites/scss',
-  'bower_components/motion-ui/src'
-];
+
+gulp.task('configure-environment', function() {
+  var env = args.env || 'local';
+  var filename = env + '.json';
+  var settings = JSON.parse(fs.readFileSync('./config/' + filename, 'utf8'));
+
+  gulp.src('app/js/config.js')
+    .pipe($.replace({
+      patterns: [
+        {
+          match: 'equipmentApi',
+          replacement: settings.equipmentApi
+        }
+      ]
+    }))
+    .pipe(gulp.dest('dist/js/'));
+});
 
 gulp.task('sass', function() {
+  var sassPaths = [
+    'bower_components/foundation-sites/scss',
+    'bower_components/motion-ui/src'
+  ];
+
   return gulp.src('app/scss/app.scss')
     .pipe($.sass({
       includePaths: sassPaths
@@ -50,7 +74,11 @@ gulp.task('build-bower', function() {
 });
 
 gulp.task('build', function(callback) {
-  runSequence('clean', ['build-bower', 'build-html', 'build-styles', 'build-scripts', 'build-data'], callback);
+  runSequence(
+    'clean', 
+    ['build-bower', 'build-html', 'build-styles', 'build-scripts', 'build-data'], 
+    'configure-environment',
+    callback);
 });
 
 gulp.task('serve-reload', ['build'], function() {
