@@ -9,7 +9,8 @@
   "homepage": "https://github.com/rhoegg-things/things-web",
   "dependencies": {
     "foundation-sites": "~6.1.0",
-    "motion-ui": "~1.1.0"
+    "motion-ui": "~1.1.0",
+    "angular": "~1.4.9"
   },
   "ignore": [
     "**/.*",
@@ -18,5 +19,8 @@
     "test",
     "tests"
   ],
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "angular-resource": "~1.4.9"
+  }
 }

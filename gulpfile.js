@@ -3,22 +3,44 @@ var browserSync = require('browser-sync');
 var del = require('del');
 var runSequence = require('run-sequence');
 var deploy = require('gulp-gh-pages');
-var $    = require('gulp-load-plugins')();
+var args = require('yargs').argv;
+var fs = require('fs');
+var karma = require('karma');
+var $    = require('gulp-load-plugins')({
+  rename: {
+    "gulp-replace-task": "replace"
+  }
+});
 
-var sassPaths = [
-  'bower_components/foundation-sites/scss',
-  'bower_components/motion-ui/src'
-];
+
+gulp.task('configure-environment', function() {
+  var env = args.env || 'local';
+  var filename = env + '.json';
+  var settings = JSON.parse(fs.readFileSync('./config/' + filename, 'utf8'));
+
+  gulp.src('app/js/config.js')
+    .pipe($.replace({
+      patterns: [
+        {
+          match: 'equipmentApi',
+          replacement: settings.equipmentApi
+        }
+      ]
+    }))
+    .pipe(gulp.dest('dist/js/'));
+});
 
 gulp.task('sass', function() {
+  var sassPaths = [
+    'bower_components/foundation-sites/scss',
+    'bower_components/motion-ui/src'
+  ];
+
   return gulp.src('app/scss/app.scss')
     .pipe($.sass({
       includePaths: sassPaths
     })
       .on('error', $.sass.logError))
-    .pipe($.autoprefixer({
-      browsers: ['last 2 versions', 'ie >= 9']
-    }))
     .pipe(gulp.dest('app/css'))
     .pipe(browserSync.reload({ stream: true }));
 });
@@ -33,7 +55,7 @@ gulp.task('build-styles', ['sass'], function() {
 });
 
 gulp.task('build-scripts', function() {
-  return gulp.src('app/js/*.js')
+  return gulp.src(['app/js/*.js', '!app/js/config.js'])
     .pipe(gulp.dest('dist/js/'));
 });
 
@@ -45,8 +67,29 @@ gulp.task('build-html', ['build-scripts', 'build-styles'], function() {
     .pipe(gulp.dest('dist/'));
 });
 
+gulp.task('build-data', function() {
+  return gulp.src('app/*.json')
+    .pipe(gulp.dest('dist/'));
+});
+
+gulp.task('build-bower', function() {
+  return gulp.src('bower_components/**/*')
+    .pipe(gulp.dest('dist/bower_components/'));
+});
+
 gulp.task('build', function(callback) {
-  runSequence('clean', ['build-html', 'build-styles', 'build-scripts'], callback);
+  runSequence(
+    'clean', 
+    ['build-bower', 'build-html', 'build-styles', 'build-scripts', 'build-data'], 
+    'configure-environment',
+    callback);
+});
+
+gulp.task('test', ['build', 'configure-environment'], function(callback) {
+  new karma.Server({
+    configFile: __dirname + "/karma.conf.js",
+    singleRun: true
+  }, callback).start();
 });
 
 gulp.task('serve-reload', ['build'], function() {
@@ -62,7 +105,7 @@ gulp.task('serve', ['build'], function() {
   });
 
   gulp.watch('app/scss/*.scss', ['sass']);
-  gulp.watch(['*.html', 'css/**/*.css', 'js/**/*.js'], {cwd: 'app'}, ['serve-reload']);
+  gulp.watch(['*.html', '*.json', 'css/**/*.css', 'js/**/*.js'], {cwd: 'app'}, ['serve-reload']);
 });
 
 gulp.task('deploy-azure', ['build'], function() {
