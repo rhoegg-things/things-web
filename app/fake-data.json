@@ -1,0 +1,29 @@
+{
+    "types": [
+        {
+            "name": "Security Cameras",
+            "items": [
+                {
+                    "name": "Exterior Front Door"
+                },
+                {
+                    "name": "Break Room"
+                },
+                {
+                    "name": "Entryway"
+                },
+                {
+                    "name": "West Hallway"
+                }
+            ]
+        }
+    ],
+    "items": [
+        {
+            "name": "Projector"
+        },
+        {
+            "name": "Projector Screen"
+        }
+    ]
+}

@@ -39,13 +39,18 @@ gulp.task('build-html', function() {
     .pipe(gulp.dest('dist/'));
 });
 
+gulp.task('build-data', function() {
+  return gulp.src('app/*.json')
+    .pipe(gulp.dest('dist/'));
+});
+
 gulp.task('build-bower', function() {
   return gulp.src('bower_components/**/*')
     .pipe(gulp.dest('dist/bower_components/'));
 });
 
 gulp.task('build', function(callback) {
-  runSequence('clean', ['build-bower', 'build-html', 'build-styles', 'build-scripts'], callback);
+  runSequence('clean', ['build-bower', 'build-html', 'build-styles', 'build-scripts', 'build-data'], callback);
 });
 
 gulp.task('serve-reload', ['build'], function() {
@@ -61,7 +66,7 @@ gulp.task('serve', ['build'], function() {
   });
 
   gulp.watch('app/scss/*.scss', ['sass']);
-  gulp.watch(['*.html', 'css/**/*.css', 'js/**/*.js'], {cwd: 'app'}, ['serve-reload']);
+  gulp.watch(['*.html', '*.json', 'css/**/*.css', 'js/**/*.js'], {cwd: 'app'}, ['serve-reload']);
 });
 
 gulp.task('deploy-azure', ['build'], function() {
