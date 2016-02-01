@@ -1,7 +1,8 @@
-var thingsServices = angular.module('thingsServices', ['ngResource']);
+var thingsServices = angular.module('thingsServices', ['config', 'ngResource']);
 
 thingsServices.factory('Equipment', ['$resource', 'equipmentApi', function($resource, equipmentApi) {
-    return $resource(equipmentApi + '/fake-data.json', {}, {
+    console.log("Configured with equipment API " + equipmentApi);
+    return $resource(equipmentApi, {}, {
         query: {
             method: 'GET'
         }

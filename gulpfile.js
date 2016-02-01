@@ -5,6 +5,7 @@ var runSequence = require('run-sequence');
 var deploy = require('gulp-gh-pages');
 var args = require('yargs').argv;
 var fs = require('fs');
+var karma = require('karma');
 var $    = require('gulp-load-plugins')({
   rename: {
     "gulp-replace-task": "replace"
@@ -54,7 +55,7 @@ gulp.task('build-styles', ['sass'], function() {
 });
 
 gulp.task('build-scripts', function() {
-  return gulp.src('app/js/*.js')
+  return gulp.src(['app/js/*.js', '!app/js/config.js'])
     .pipe(gulp.dest('dist/js/'));
 });
 
@@ -79,6 +80,13 @@ gulp.task('build', function(callback) {
     ['build-bower', 'build-html', 'build-styles', 'build-scripts', 'build-data'], 
     'configure-environment',
     callback);
+});
+
+gulp.task('test', ['build', 'configure-environment'], function(callback) {
+  new karma.Server({
+    configFile: __dirname + "/karma.conf.js",
+    singleRun: true
+  }, callback).start();
 });
 
 gulp.task('serve-reload', ['build'], function() {
