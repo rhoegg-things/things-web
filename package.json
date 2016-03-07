@@ -36,5 +36,7 @@
   "author": "Ryan Hoegg <ryan.hoegg@gmail.com>",
   "license": "Apache 2.0",
   "private": true,
-  "dependencies": {}
+  "dependencies": {
+    "bower": "^1.7.7"
+  }
 }
