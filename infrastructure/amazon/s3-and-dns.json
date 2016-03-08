@@ -1,0 +1,107 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Creates a static web site using S3",
+
+  "Parameters" : {
+    "HostName" : {
+      "Type" : "String",
+      "Description" : "The hostname for the new site",
+      "AllowedPattern" : "[a-zA-Z][-a-zA-Z0-9]*",
+      "ConstraintDescription" : "must be a valid hostname"
+    },
+    "HostedZone" : {
+      "Type" : "String",
+      "Description" : "The DNS name of an existing Amazon Route 53 hosted zone",
+      "AllowedPattern" : "(?!-)[a-zA-Z0-9-.]{1,63}(?<!-)",
+      "ConstraintDescription" : "must be a valid DNS zone name."
+    }
+  },
+
+  "Mappings" : {
+    "Region2S3WebsiteSuffix": {
+      "us-east-1"      : { "Suffix": ".s3-website-us-east-1.amazonaws.com" },
+      "us-west-1"      : { "Suffix": ".s3-website-us-west-1.amazonaws.com" },
+      "us-west-2"      : { "Suffix": ".s3-website-us-west-2.amazonaws.com" },
+      "eu-west-1"      : { "Suffix": ".s3-website-eu-west-1.amazonaws.com" },
+      "ap-northeast-1" : { "Suffix": ".s3-website-ap-northeast-1.amazonaws.com" },
+      "ap-northeast-2" : { "Suffix": ".s3-website-ap-northeast-2.amazonaws.com" },
+      "ap-southeast-1" : { "Suffix": ".s3-website-ap-southeast-1.amazonaws.com" },
+      "ap-southeast-2" : { "Suffix": ".s3-website-ap-southeast-2.amazonaws.com" },
+      "sa-east-1"      : { "Suffix": ".s3-website-sa-east-1.amazonaws.com" },
+      "cn-north-1"     : { "Suffix": ".s3-website.cn-north-1.amazonaws.com.cn" },
+      "eu-central-1"   : { "Suffix": ".s3-website-eu-central-1.amazonaws.com" }
+    }
+
+  },
+
+  "Resources" : {
+    "S3BucketForWebsiteContent" : {
+      "Type" : "AWS::S3::Bucket",
+      "Properties" : {
+        "BucketName" : {"Fn::Join" : [ "", [{"Ref" : "HostName"}, ".", {"Ref" : "HostedZone"}, "-content" ]] },
+        "AccessControl" : "PublicRead",
+        "WebsiteConfiguration" : {
+           "IndexDocument" : "index.html",
+           "ErrorDocument" : "error.html"
+        }
+      }
+    },
+    "S3BucketForUrlRedirect" : {
+      "Type" : "AWS::S3::Bucket",
+      "Properties" : {
+        "BucketName": {"Fn::Join" : [ "", [{"Ref" : "HostName"}, ".", {"Ref" : "HostedZone"} ]] },
+        "AccessControl" : "BucketOwnerFullControl",
+        "WebsiteConfiguration": {
+          "RedirectAllRequestsTo": {
+            "HostName": { "Fn::Join" : ["", [{"Ref" : "S3BucketForWebsiteContent"},
+                               {"Fn::FindInMap" : [ "Region2S3WebsiteSuffix", {"Ref" : "AWS::Region"}, "Suffix" ]}]]}
+          }
+        }
+      }
+    },
+    "WebsiteDNSName" : {
+      "Type" : "AWS::Route53::RecordSet",
+      "Properties" : {
+        "HostedZoneName" : { "Fn::Join" : [ "", [{ "Ref" : "HostedZone" }, "."]]},
+        "Comment" : "CNAME redirect custom name to S3 Bucket",
+        "Name" : { "Fn::Join" : [ ".", [{"Ref" : "HostName"}, { "Ref" : "HostedZone" }]]},
+        "Type" : "CNAME",
+        "TTL" : "900",
+        "ResourceRecords" : [
+          { "Fn::Join" : ["", [{"Ref" : "S3BucketForUrlRedirect"},
+                               {"Fn::FindInMap" : [ "Region2S3WebsiteSuffix", {"Ref" : "AWS::Region"}, "Suffix" ]}]]}
+        ]
+      }
+    },
+    "BucketPolicyForContent" : {
+      "Type" : "AWS::S3::BucketPolicy",
+      "Properties" : {
+        "PolicyDocument" : {
+          "Version": "2012-10-17",
+          "Statement" : [ {
+            "Sid" : "ReadAccess",
+            "Action" : [ "s3:GetObject" ],
+            "Effect" : "Allow",
+            "Resource" : { "Fn::Join" : [
+                  "", [ "arn:aws:s3:::", { "Ref" : "S3BucketForWebsiteContent" } , "/*" ]
+               ] },
+            "Principal" : "*"
+          } ]
+        },
+        "Bucket" : { "Ref" : "S3BucketForWebsiteContent" }
+      }
+    }
+  },
+
+  "Outputs" : {
+    "WebsiteURL" : {
+      "Value" : {"Fn::Join" : [ "", ["http://", {"Fn::GetAtt":["S3BucketForUrlRedirect", "DomainName"]} ]] },
+      "Description" : "The URL of the newly created website"
+    },
+    "BucketName" : {
+      "Value" : { "Ref" : "S3BucketForWebsiteContent" },
+      "Description" : "Name of S3 bucket to hold website content"
+    }
+  }
+}
