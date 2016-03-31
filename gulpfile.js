@@ -79,9 +79,9 @@ gulp.task('build-bower', function() {
 
 gulp.task('build', function(callback) {
   runSequence(
-    'clean', 
-    ['build-bower', 'build-html', 'build-styles', 'build-scripts', 'build-data'], 
-    'configure-environment',
+      'clean',
+      'configure-environment',
+      ['build-bower', 'build-html', 'build-styles', 'build-scripts', 'build-data'],
     callback);
 });
 
