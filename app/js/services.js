@@ -8,3 +8,12 @@ thingsServices.factory('Equipment', ['$resource', 'equipmentApi', function($reso
         }
     });
 }]);
+
+thingsServices.factory('People', ['$resource', 'peopleApi', function($resource, peopleApi) {
+    console.log("Configured with people API " + peopleApi);
+    return $resource(peopleApi, {}, {
+        query: {
+            method: 'GET'
+        }
+    });
+}]);

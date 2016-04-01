@@ -1,3 +1,4 @@
 {
-    "equipmentApi": "/fake-data.json"
+    "equipmentApi": "/fake-data.json",
+    "peopleApi": "http://192.168.99.1:8001/people"
 }

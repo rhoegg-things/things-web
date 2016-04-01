@@ -1,3 +1,4 @@
 {
-    "equipmentApi": "http://undefined.com/undefined.json"
+    "equipmentApi": "http://undefined.com/undefined.json",
+    "peopleApi": "https://blueberry-sundae-11999.herokuapp.com/people"
 }
