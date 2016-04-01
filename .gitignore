@@ -1,6 +1,6 @@
 .DS_Store
 .publish
-.idea
+.idea/
 bower_components
 node_modules
 npm-debug.log

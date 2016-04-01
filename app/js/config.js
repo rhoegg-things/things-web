@@ -1,2 +1,3 @@
 angular.module('config', [])
-    .constant('equipmentApi', '@@equipmentApi');
+    .constant('equipmentApi', '@@equipmentApi')
+    .constant('peopleApi', '@@peopleApi');

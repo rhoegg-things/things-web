@@ -24,6 +24,10 @@ gulp.task('configure-environment', function() {
         {
           match: 'equipmentApi',
           replacement: settings.equipmentApi
+        },
+        {
+          match: 'peopleApi',
+          replacement: settings.peopleApi
         }
       ]
     }))
